@@ -1,0 +1,137 @@
+✅ Q1: Identify the violated design principle + Give solution
+Problem
+
+Interface Machine forces every class to implement print(), scan(), fax() even if the machine cannot support all functions (like OldPrinter).
+
+🔍 Violated Design Principle
+
+👉 Interface Segregation Principle (ISP)
+(“Clients should not be forced to depend on methods they do not use.”)
+
+OldPrinter is forced to implement scan() and fax() even though it doesn’t support them → violation.
+
+✅ Correct Solution (Refactored Code Using ISP)
+Step 1 — Break big interface into small interfaces
+interface Printer {
+    void print();
+}
+
+interface Scanner {
+    void scan();
+}
+
+interface Fax {
+    void fax();
+}
+
+Step 2 — Only implement what each machine supports
+class OldPrinter implements Printer {
+    @Override
+    public void print() {
+        System.out.println("Printing document...");
+    }
+}
+
+class MultiFunctionPrinter implements Printer, Scanner, Fax {
+    @Override
+    public void print() {
+        System.out.println("Printing...");
+    }
+    @Override
+    public void scan() {
+        System.out.println("Scanning...");
+    }
+    @Override
+    public void fax() {
+        System.out.println("Faxing...");
+    }
+}
+
+
+✔ Problem solved — no class is forced to implement unnecessary methods.
+
+✅ Q2: Java Program for Average of 5 Subjects + Grade
+Grading Criteria (simple example)
+
+A → avg ≥ 85
+
+B → avg ≥ 70
+
+C → avg ≥ 60
+
+D → avg ≥ 50
+
+F → below 50
+
+PROGRAM
+import java.util.Scanner;
+
+public class StudentGrade {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int s1, s2, s3, s4, s5;
+
+        System.out.print("Enter marks of 5 subjects: ");
+        s1 = sc.nextInt();
+        s2 = sc.nextInt();
+        s3 = sc.nextInt();
+        s4 = sc.nextInt();
+        s5 = sc.nextInt();
+
+        double avg = (s1 + s2 + s3 + s4 + s5) / 5.0;
+
+        System.out.println("Average = " + avg);
+
+        if (avg >= 85)
+            System.out.println("Grade: A");
+        else if (avg >= 70)
+            System.out.println("Grade: B");
+        else if (avg >= 60)
+            System.out.println("Grade: C");
+        else if (avg >= 50)
+            System.out.println("Grade: D");
+        else
+            System.out.println("Grade: F");
+    }
+}
+
+✅ Q3: Identify the code smell + Refactor
+Given Problem
+
+Penguin extends Bird, but Bird has fly().
+Penguins cannot fly → overriding method throws exception → LSP violation.
+
+🔍 Code Smell
+
+👉 Liskov Substitution Principle (LSP) Violation
+👉 Also Wrong Inheritance / Misplaced Method
+👉 Refused Bequest
+
+🔧 Correct Refactored Solution
+Step 1 — Birds should not all have fly()
+interface Flyable {
+    void fly();
+}
+
+Step 2 — Bird base class without fly()
+class Bird {
+    public void eat() {
+        System.out.println("Eating...");
+    }
+}
+
+Step 3 — Flying birds implement Flyable
+class Sparrow extends Bird implements Flyable {
+    @Override
+    public void fly() {
+        System.out.println("Sparrow flying...");
+    }
+}
+
+Step 4 — Penguin does NOT implement Flyable
+class Penguin extends Bird {
+    public void swim() {
+        System.out.println("Penguin swimming...");
+    }
+}
