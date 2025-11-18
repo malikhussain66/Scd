@@ -1,0 +1,189 @@
+✅ Q1: Identify Interface Segregation Violation + Solution
+Problem
+
+The Bird interface forces all birds to implement fly(), but some birds (Penguins) cannot fly.
+
+🔍 Violated Principle
+
+👉 Interface Segregation Principle (ISP)
+“No class should be forced to depend on methods it does not use.”
+
+Penguin is forced to implement fly() → throws exception → violation.
+
+✅ Correct Refactored Solution
+Step 1 — Split interfaces
+interface EggLayer {
+    void layEggs();
+}
+
+interface Flyable {
+    void fly();
+}
+
+Step 2 — Bird base class (optional)
+class Bird { }
+
+Step 3 — Sparrow: can fly + lays eggs
+class Sparrow extends Bird implements Flyable, EggLayer {
+
+    @Override
+    public void fly() {
+        System.out.println("Sparrow flying...");
+    }
+
+    @Override
+    public void layEggs() {
+        System.out.println("Sparrow laying eggs...");
+    }
+}
+
+Step 4 — Penguin: lays eggs but does NOT fly
+class Penguin extends Bird implements EggLayer {
+
+    @Override
+    public void layEggs() {
+        System.out.println("Penguin laying eggs...");
+    }
+}
+
+
+✔ No forced methods
+✔ No exceptions
+✔ ISP fully satisfied
+
+✅ Q2: Shopping Cart – Product Class + Total Calculation
+Complete Program
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Product {
+    String name;
+    double price;
+    int quantity;
+
+    public Product(String name, double price, int quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public double getTotal() {
+        return price * quantity;
+    }
+}
+
+class ShoppingCart {
+    private List<Product> cart = new ArrayList<>();
+
+    public void addProduct(Product p) {
+        cart.add(p);
+    }
+
+    public double calculateTotal() {
+        double total = 0;
+        for (Product p : cart) {
+            total += p.getTotal();
+        }
+        return total;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ShoppingCart cart = new ShoppingCart();
+
+        System.out.print("How many products to add? ");
+        int n = sc.nextInt();
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Name: ");
+            String name = sc.next();
+            System.out.print("Price: ");
+            double price = sc.nextDouble();
+            System.out.print("Quantity: ");
+            int qty = sc.nextInt();
+
+            cart.addProduct(new Product(name, price, qty));
+        }
+
+        System.out.println("Total Amount = " + cart.calculateTotal());
+    }
+}
+
+
+✔ Simple
+✔ Works in terminal
+✔ Perfect for lab exam
+
+✅ Q3: Identify Code Smells + Refactor
+Given Problem
+public class OrderManager {
+    private List<Order> orders;
+
+    public void processOrders() {
+        for (Order order : orders) {
+            // Validate order
+            if (order.getAmount() > 0) {
+                System.out.println("Processing order for " + order.getCustomerName());
+
+                // Send confirmation email
+                System.out.println("Sending confirmation email to " + order.getCustomerEmail());
+
+            } else {
+                System.out.println("Invalid order amount!");
+            }
+        }
+    }
+}
+
+🔍 Code Smells Identified
+1. Long Method / Too many responsibilities
+
+processOrders() does validation + processing + sending emails → violates SRP.
+
+2. Feature Envy
+
+OrderManager is printing email logic → should be in separate class.
+
+3. No separation of concerns
+
+Business logic mixed with I/O (println).
+
+🔧 Refactored Solution (Clean, SRP, Maintainable)
+Step 1 — Create Validator
+class OrderValidator {
+    public boolean isValid(Order order) {
+        return order.getAmount() > 0;
+    }
+}
+
+Step 2 — Create Email Service
+class EmailService {
+    public void sendConfirmation(String email) {
+        System.out.println("Sending confirmation email to " + email);
+    }
+}
+
+Step 3 — Clean OrderManager
+class OrderManager {
+
+    private List<Order> orders;
+    private OrderValidator validator = new OrderValidator();
+    private EmailService emailService = new EmailService();
+
+    public void processOrders() {
+        for (Order order : orders) {
+
+            if (validator.isValid(order)) {
+
+                System.out.println("Processing order for " + order.getCustomerName());
+                emailService.sendConfirmation(order.getCustomerEmail());
+
+            } else {
+                System.out.println("Invalid order amount!");
+            }
+        }
+    }
+}
